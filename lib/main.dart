@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:webspark_test_task/presentation/pages/home_screen.dart';
+import 'data/data_sources/local/preferences_helper.dart';
 
-void main() {
+Future<void> main() async {
+
+  WidgetsFlutterBinding.ensureInitialized();
+  await PreferencesHelper.instance.init();
 
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
-      statusBarColor: Colors.blue, // Цвет фона статус-бара
-      statusBarIconBrightness: Brightness.light, // Цвет иконок (light — белые, dark — черные)
+      statusBarColor: Colors.blue,
+      statusBarIconBrightness: Brightness.light,
     ),
   );
   runApp(const MyApp());
