@@ -12,11 +12,22 @@ class ApiClient {
     final response = await http.get(Uri.parse(baseUrl));
     debugPrint('Response: ${response.body}');
 
-    if (response.statusCode == 200) {
-      debugPrint('Status code = 200, success');
-      return json.decode(response.body);
-    } else {
-      throw Exception('Failed to load matrix data');
+    if (response.body.isEmpty) {
+      throw Exception("Empty response from server");}
+
+    switch (response.statusCode) {
+      case 200:
+        debugPrint('Status code 200, success');
+        return json.decode(response.body);
+
+      case 429:
+        throw Exception('Status code ${response.statusCode}. Too Many Requests');
+
+      case 500:
+        throw Exception('Status code ${response.statusCode}. Internal Server Error');
+
+      default:
+        throw Exception('Unexpected error: ${response.statusCode}');
     }
   }
 
@@ -26,12 +37,24 @@ class ApiClient {
       headers: {'Content-Type': 'application/json'},
       body: json.encode(data),
     );
+    debugPrint('Response: ${response.body}');
 
-    if (response.statusCode != 200) {
-      throw Exception('Failed to post data');
+    if (response.body.isEmpty) {
+      throw Exception("Empty response from server");}
+
+    switch (response.statusCode) {
+      case 200:
+        debugPrint('Status code 200, success');
+        return json.decode(response.body);
+
+      case 429:
+        throw Exception('Status code ${response.statusCode}. Too Many Requests');
+
+      case 500:
+        throw Exception('Status code ${response.statusCode}. Internal Server Error');
+
+      default:
+        throw Exception('Unexpected error: ${response.statusCode}');
     }
-    else {
-      return json.decode(response.body);
     }
   }
-}
