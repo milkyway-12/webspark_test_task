@@ -8,7 +8,7 @@ class ApiClient {
   // final String? baseUrl = PreferencesHelper.instance.getServerUrl();
   final baseUrl = 'https://flutter.webspark.dev/flutter/api';
 
-  Future<Map<String, dynamic>> getTaskList() async {
+  Future<Map<String, dynamic>?> getTaskList() async {
     final response = await http.get(Uri.parse(baseUrl));
     debugPrint('Response: ${response.body}');
 
@@ -20,15 +20,18 @@ class ApiClient {
     }
   }
 
-  Future<void> sendSolutionsList(Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> sendSolutionsList(Map<String, dynamic> data) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/data'),
+      Uri.parse(baseUrl),
       headers: {'Content-Type': 'application/json'},
       body: json.encode(data),
     );
 
     if (response.statusCode != 200) {
       throw Exception('Failed to post data');
+    }
+    else {
+      return json.decode(response.body);
     }
   }
 }
