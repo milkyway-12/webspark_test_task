@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:webspark_test_task/data/data_sources/remote/api_client.dart';
 import 'package:webspark_test_task/presentation/pages/process_screen.dart';
 
 import '../../data/data_sources/local/preferences_helper.dart';
@@ -12,11 +13,10 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _urlInputController = TextEditingController();
-  final PreferencesHelper _prefsHelper = PreferencesHelper();
 
   void _savedUrl() async {
     if(_urlInputController.text != '') {
-      _prefsHelper.saveServerUrl(_urlInputController.text);
+      PreferencesHelper.instance.saveServerUrl(_urlInputController.text);
     }
   }
 
