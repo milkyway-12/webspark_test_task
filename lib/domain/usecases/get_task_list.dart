@@ -7,6 +7,11 @@ class GetTaskList {
   GetTaskList(this.repository);
 
   Future<List<Task>> execute() async {
-    return await repository.getTaskList();
+    try {
+      return await repository.getTaskList();
+    }
+    catch (e) {
+      rethrow;
+    }
   }
 }
