@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:webspark_test_task/data/data_sources/remote/api_client.dart';
 import 'package:webspark_test_task/presentation/pages/process_screen.dart';
-
 import '../../data/data_sources/local/preferences_helper.dart';
+import '../../domain/use_cases/save_url_use_case.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,10 +12,11 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _urlInputController = TextEditingController();
+  final saveUrlUseCase = SaveServerUrlUseCase(PreferencesHelper.instance);
 
-  void _savedUrl() async {
+  void _saveUrl() async {
     if(_urlInputController.text != '') {
-      PreferencesHelper.instance.saveServerUrl(_urlInputController.text);
+      await saveUrlUseCase.execute(_urlInputController.text);
     }
   }
 
@@ -80,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       onPressed: () {
-                        _savedUrl();
+                        _saveUrl();
                         Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => const ProcessScreen()),

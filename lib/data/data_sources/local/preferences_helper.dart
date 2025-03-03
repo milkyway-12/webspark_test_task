@@ -15,6 +15,9 @@ class PreferencesHelper {
   static const String keyServerUrl = 'server_url';
 
   Future<void> saveServerUrl(String url) async {
+    if (_preferencesHelper?.containsKey(keyServerUrl) == true) {
+      await _preferencesHelper?.remove(keyServerUrl);
+    }
     await _preferencesHelper?.setString(keyServerUrl, url);
   }
 
