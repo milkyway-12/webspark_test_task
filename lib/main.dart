@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:webspark_test_task/domain/services/path_finder_service.dart';
-import 'package:webspark_test_task/presentation/bloc/bloc/processing_bloc.dart';
+import 'package:webspark_test_task/presentation/bloc/processing_bloc.dart';
 import 'package:webspark_test_task/presentation/pages/home_screen.dart';
 import 'data/data_sources/local/preferences_helper.dart';
 import 'data/data_sources/remote/api_client.dart';

@@ -1,21 +1,44 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../data/models/solution.dart';
-import '../../../domain/use_cases/fetch_task_list_use_case.dart';
-import '../../../domain/use_cases/find_shortest_path_use_case.dart';
-import '../../../domain/use_cases/send_results_use_case.dart';
-import '../events/fetch_tasks_event.dart';
-import '../events/processing_event.dart';
-import '../events/send_results_event.dart';
-import '../events/start_calculations_event.dart';
-import '../states/calculating_state.dart';
-import '../states/calculation_finished_state.dart';
-import '../states/error_state.dart';
-import '../states/initial_state.dart';
-import '../states/loading_tasks_state.dart';
-import '../states/progressing_state.dart';
-import '../states/sending_results_state.dart';
-import '../states/success_state.dart';
-import '../states/tasks_loaded_state.dart';
+import '../../data/models/solution.dart';
+import '../../domain/use_cases/fetch_task_list_use_case.dart';
+import '../../domain/use_cases/find_shortest_path_use_case.dart';
+import '../../domain/use_cases/send_results_use_case.dart';
+
+abstract class ProcessingEvent {}
+
+class FetchTasksEvent extends ProcessingEvent {}
+class StartCalculationsEvent extends ProcessingEvent {}
+class SendResultsEvent extends ProcessingEvent {}
+
+abstract class ProcessingState {}
+
+class InitialState extends ProcessingState {}
+class LoadingTasksState extends ProcessingState {}
+class TasksLoadedState extends ProcessingState {
+  final List<dynamic> tasks;
+  TasksLoadedState(this.tasks);
+}
+class CalculatingState extends ProcessingState {
+  final int progress;
+  CalculatingState(this.progress);
+}
+class CalculationFinishedState extends ProcessingState {
+  final List<Solution> results;
+  CalculationFinishedState(this.results);
+}
+class SendingResultsState extends ProcessingState {
+  final List<Solution> results;
+  SendingResultsState(this.results);
+}
+class SuccessState extends ProcessingState {
+  final List<Solution> results;
+  SuccessState(this.results);
+}
+class ErrorState extends ProcessingState {
+  final String message;
+  final List<Solution> results;
+  ErrorState(this.message, this.results);
+}
 
 class ProcessingBloc extends Bloc<ProcessingEvent, ProcessingState> {
   final FetchTaskListUseCase fetchTasks;
@@ -37,8 +60,9 @@ class ProcessingBloc extends Bloc<ProcessingEvent, ProcessingState> {
     try {
       final tasks = await fetchTasks.execute();
       emit(TasksLoadedState(tasks));
+      add(StartCalculationsEvent());
     } catch (e) {
-      emit(ErrorState(e.toString()));
+      emit(ErrorState(e.toString(), []));
     }
   }
 
@@ -59,12 +83,12 @@ class ProcessingBloc extends Bloc<ProcessingEvent, ProcessingState> {
     final currentState = state;
     if (currentState is! CalculationFinishedState) return;
 
-    emit(SendingResultsState());
+    emit(SendingResultsState(currentState.results));
     try {
       await sendResults.execute(currentState.results);
-      emit(SuccessState());
+      emit(SuccessState(currentState.results));
     } catch (e) {
-      emit(ErrorState(e.toString()));
+      emit(ErrorState(e.toString(), currentState.results));
     }
   }
 }

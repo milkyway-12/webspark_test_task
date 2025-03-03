@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:webspark_test_task/presentation/pages/process_screen.dart';
 import '../../data/data_sources/local/preferences_helper.dart';
 import '../../domain/use_cases/save_url_use_case.dart';
@@ -22,6 +23,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(
+          statusBarColor: Colors.blue,
+          statusBarIconBrightness: Brightness.light,
+        ),
+      );
+    });
     return SafeArea(
         child: Scaffold(
             appBar: AppBar(

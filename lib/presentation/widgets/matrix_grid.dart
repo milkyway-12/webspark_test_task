@@ -92,7 +92,7 @@ class _MatrixGridState extends State<MatrixGrid> {
     }
 
     return Card(
-      margin: EdgeInsets.all(1),
+      margin: const EdgeInsets.all(1),
       elevation: 2,
       color: cellColor,
       child: Center(
