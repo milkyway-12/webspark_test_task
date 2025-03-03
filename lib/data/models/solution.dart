@@ -19,9 +19,12 @@ class Solution {
     );
   }
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'steps': steps,
-    'path': path,
-  };
+  Map<String, dynamic> toJson() =>
+    {
+      'id': id,
+      'result': {
+        'steps': steps,
+        'path': path,
+      }
+    };
 }
