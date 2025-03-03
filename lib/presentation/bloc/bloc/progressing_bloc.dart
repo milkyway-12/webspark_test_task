@@ -35,7 +35,7 @@ class ProcessingBloc extends Bloc<ProcessingEvent, ProcessingState> {
   Future<void> _onFetchTasks(FetchTasksEvent event, Emitter<ProcessingState> emit) async {
     emit(LoadingTasksState());
     try {
-      final tasks = await fetchTasks.execute();/////////
+      final tasks = await fetchTasks.execute();
       emit(TasksLoadedState(tasks));
     } catch (e) {
       emit(ErrorState(e.toString()));
@@ -48,7 +48,7 @@ class ProcessingBloc extends Bloc<ProcessingEvent, ProcessingState> {
 
     List<Solution> results = [];
     for (int i = 0; i < currentState.tasks.length; i++) {
-      final result = await findShortestPath.execute(currentState.tasks[i]);
+      final result = findShortestPath.execute(currentState.tasks[i]);
       results.add(result);
       emit(CalculatingState(((i + 1) / currentState.tasks.length * 100).toInt()));
     }
@@ -61,7 +61,7 @@ class ProcessingBloc extends Bloc<ProcessingEvent, ProcessingState> {
 
     emit(SendingResultsState());
     try {
-      await sendResults(currentState.results);
+      await sendResults.execute(currentState.results);
       emit(SuccessState());
     } catch (e) {
       emit(ErrorState(e.toString()));
