@@ -1,19 +1,21 @@
 import 'package:flutter/cupertino.dart';
-
+import 'package:webspark_test_task/core/utils/utils.dart';
 import '../../data/models/game_point.dart';
+import '../../data/models/solution.dart';
+import '../../data/models/task.dart';
 import 'direction.dart';
 
 class PathFinderService {
 
-  List<List<GamePoint>> getPointMatrix(List<String> data) {
+  List<List<GamePoint>> getPointMatrix(List<String> field) {
     List<List<GamePoint>> matrix = [];
 
-    for (int y = 0; y < data.length; y++) {
+    for (int x = 0; x < field.length; x++) {
       List<GamePoint> row = [];
-      String rowData = data[y];
+      String rowData = field[x];
 
-      for (int x = 0; x < rowData.length; x++) {
-        String value = rowData[x];
+      for (int y = 0; y < rowData.length; y++) {
+        String value = rowData[y];
         bool isAvailable = value == '.';
 
         row.add(GamePoint(x: x, y: y, isAvailable: isAvailable));
@@ -41,25 +43,37 @@ class PathFinderService {
   }
 
 
-  List<GamePoint> findShortestPath({
-    required List<String> stringField,
-    required GamePoint start,
-    required GamePoint end
-  }) {
-    List<List<GamePoint>> matrix = getPointMatrix(stringField);
-    List<GamePoint> blockedPoints = getBlockedPoints(matrix);
+  List<Direction> getDirectionPriorities (Direction neededDirection) {
+    
+    Map<Direction, List<Direction>> directionPriorities = {
+      Direction.left: [Direction.left, Direction.topLeft, Direction.bottomLeft],
+      Direction.right: [Direction.right, Direction.topRight, Direction.bottomRight],
+      Direction.top: [Direction.top, Direction.topLeft, Direction.topRight],
+      Direction.bottom: [Direction.bottom, Direction.bottomLeft, Direction.bottomRight],
+      Direction.topLeft: [Direction.topLeft, Direction.top, Direction.left],
+      Direction.topRight: [Direction.topRight, Direction.top, Direction.right],
+      Direction.bottomLeft: [Direction.bottomLeft, Direction.bottom, Direction.left],
+      Direction.bottomRight: [Direction.bottomRight, Direction.bottom, Direction.right],
+    };
 
+    return directionPriorities[neededDirection] ?? [];
+  }
+  
+  
+  Solution findShortestPath({
+    required Task task
+  }) {
+    final List<List<GamePoint>> matrix = getPointMatrix(task.field);
+    final GamePoint start = task.start;
+    final GamePoint end = task.end;
+
+    List<GamePoint> blockedPoints = getBlockedPoints(matrix);
     List<GamePoint> shortestPath = [start];
 
-    bool isEndLeft (GamePoint initialPoint) {
-      if (initialPoint.x < end.x) {
-        return true;
-      } else {
-        return false;
-      }
-    }
+    int maxX = matrix[0].length;
+    int maxY = matrix.length;
 
-    bool isEndRight (GamePoint initialPoint) {
+    bool isEndLeft(GamePoint initialPoint) {
       if (initialPoint.x > end.x) {
         return true;
       } else {
@@ -67,92 +81,44 @@ class PathFinderService {
       }
     }
 
-    bool isEndTop (GamePoint initialPoint) {
-      if (initialPoint.y < end.y) {
+    bool isEndRight(GamePoint initialPoint) {
+      if (initialPoint.x < end.x) {
         return true;
       } else {
         return false;
       }
     }
 
-    bool isEndBottom (GamePoint initialPoint) {
-        if (initialPoint.y > end.y) {
-          return true;
-        } else {
-          return false;
-        }
-    }
-
-    GamePoint move (GamePoint initialPoint, Direction direction) {
-      GamePoint newPathPoint = GamePoint(
-        x: initialPoint.x + direction.dx,
-        y: initialPoint.y + direction.dy,
-      );
-      debugPrint('Moving to (${newPathPoint.x}, ${newPathPoint.y})');
-      return newPathPoint;
-    }
-
-    bool isDiagonalPathClear (GamePoint initialPoint) {
-      int dx = (initialPoint.x - end.x).abs();
-      int dy = (initialPoint.y - end.y).abs();
-
-      if (dx != dy) {
+    bool isEndTop(GamePoint initialPoint) {
+      if (initialPoint.y > end.y) {
+        return true;
+      } else {
         return false;
       }
-
-      int stepX = initialPoint.x < end.x ? 1 : -1;
-      int stepY = initialPoint.y < end.y ? 1 : -1;
-
-      int x = initialPoint.x + stepX;
-      int y = initialPoint.y + stepY;
-
-      while (x != end.x && y != end.y) {
-        if (blockedPoints.any((p) => p.x == x && p.y == y)) {
-          return false;
-        }
-        x += stepX;
-        y += stepY;
-      }
-
-      return true;
     }
 
-
-    bool isStraightPathClear (GamePoint initialPoint) {
-
-      if (initialPoint.x == end.x) {
-        int minY = initialPoint.y < end.y ? initialPoint.y : end.y;
-        int maxY = initialPoint.y > end.y ? initialPoint.y : end.y;
-
-        for (int y = minY + 1; y < maxY; y++) {
-          if (blockedPoints.any((p) => p.x == initialPoint.x && p.y == y)) {
-            return false;
-          }
-        }
+    bool isEndBottom(GamePoint initialPoint) {
+      if (initialPoint.y < end.y) {
         return true;
+      } else {
+        return false;
       }
-
-      if (initialPoint.y == end.y) {
-        int minX = initialPoint.x < end.x ? initialPoint.x : end.x;
-        int maxX = initialPoint.x > end.x ? initialPoint.x : end.x;
-
-        for (int x = minX + 1; x < maxX; x++) {
-          if (blockedPoints.any((p) => p.y == initialPoint.y && p.x == x)) {
-            return false;
-          }
-        }
-        return true;
-      }
-
-      return false;
     }
+    
+    
+    Direction setVectorPriority(
+        Direction neededDirection,
+        List<Direction> availableDirections) {
 
-  // List<Direction> setVectorPriority (List<Direction> availableDirections) {
-  //
-  //
-  //
-  //
-  // }
+      List<Direction> endPointPriorities = getDirectionPriorities(neededDirection);
+
+      Direction result = availableDirections.firstWhere(
+            (direction) => endPointPriorities.contains(direction),
+        orElse: () => availableDirections[0],
+      );
+
+      return result;
+    }
 
 
     Direction getNextMoveDirection(GamePoint initialPoint) {
@@ -188,25 +154,11 @@ class PathFinderService {
           GamePoint initialPoint, Direction neededDirection) {
         List<Direction> availableDirections = [];
 
-        int maxX = matrix[0].length;
-        int maxY = matrix.length;
-
         bool isInsideMatrix(GamePoint point) {
           return point.x >= 0 && point.x < maxX && point.y >= 0 && point.y < maxY;
         }
 
-        Map<Direction, List<Direction>> checkMap = {
-          Direction.left: [Direction.left, Direction.topLeft, Direction.bottomLeft],
-          Direction.right: [Direction.right, Direction.topRight, Direction.bottomRight],
-          Direction.top: [Direction.top, Direction.topLeft, Direction.topRight],
-          Direction.bottom: [Direction.bottom, Direction.bottomLeft, Direction.bottomRight],
-          Direction.topLeft: [Direction.topLeft, Direction.top, Direction.left],
-          Direction.topRight: [Direction.topRight, Direction.top, Direction.right],
-          Direction.bottomLeft: [Direction.bottomLeft, Direction.bottom, Direction.left],
-          Direction.bottomRight: [Direction.bottomRight, Direction.bottom, Direction.right],
-        };
-
-        List<Direction> toCheck = checkMap[neededDirection] ?? [];
+        List<Direction> toCheck = getDirectionPriorities(neededDirection);
 
         for (Direction direction in toCheck) {
           int newX = initialPoint.x + direction.dx;
@@ -220,7 +172,7 @@ class PathFinderService {
 
         return availableDirections;
       }
-
+      
 
     bool isEndANeighbour (GamePoint initialPoint) {
       int dx = (initialPoint.x - end.x).abs();
@@ -236,8 +188,7 @@ class PathFinderService {
       return false;
     }
 
-
-    Direction navigateAround(GamePoint initialPoint, GamePoint end, List<GamePoint> blockedPoints, int maxX, int maxY) {
+    Direction navigateAround(GamePoint initialPoint) {
 
       bool isVerticalBlock = blockedPoints.every((p) => p.x == initialPoint.x);
       bool isHorizontalBlock = blockedPoints.every((p) => p.y == initialPoint.y);
@@ -277,37 +228,75 @@ class PathFinderService {
 
       throw Exception("Неможливо пройти");
     }
+    
+    
+    void movingByShortestPath() {
 
+      int maxIterations = maxX * maxY;
+      int iterations = 0;
 
-    void movingByShortestPath(){
-      late Direction lastMoveDirection;
-      GamePoint initialPoint = shortestPath[shortestPath.length-1];
+      List<Direction> availableDirections = [];
 
-      while(!isEndANeighbour(initialPoint)) {
-        Direction neededDirection = getNextMoveDirection(initialPoint);
-        List<Direction> availableDirections = getAvailableDirections(initialPoint, neededDirection);
+      List<Direction> blockedDirectionsForPoint = [];
 
-        if (availableDirections.contains(neededDirection)) {
-          shortestPath.add(move(initialPoint, neededDirection));
+      while (!isEndANeighbour(shortestPath.last) && iterations < maxIterations) {
+        iterations++;
+        GamePoint currentPoint = shortestPath.last;
+
+        Direction neededDirection = getNextMoveDirection(currentPoint);
+        
+        var allDirections = getAvailableDirections(
+            currentPoint,
+                neededDirection);
+        
+        availableDirections = allDirections.
+        toSet().
+        difference(blockedDirectionsForPoint.toSet()).toList();
+        
+        void move(GamePoint initialPoint, Direction direction) {
+          int newX = initialPoint.x + direction.dx;
+          int newY = initialPoint.y + direction.dy;
+          
+          bool pointAlreadyVisited = shortestPath.any((p) => p.x == newX && p.y == newY);
+
+          if (!pointAlreadyVisited) {
+            GamePoint newPathPoint = GamePoint(
+              x: newX,
+              y: newY,
+            );
+            shortestPath.add(newPathPoint);
+            debugPrint('Moving to ($newX, $newY)');
+            blockedDirectionsForPoint = [];
+          } else {
+            blockedDirectionsForPoint.add(direction);
+            debugPrint('Not moving to ($newX, $newY) - already visited');
+          }
         }
-        else if (availableDirections.length < 3){
 
-        }
-
+          switch (availableDirections.length) {
+            case 3:
+              move(currentPoint, neededDirection);
+              break;
+            case 2:
+            case 1:
+              move(currentPoint, setVectorPriority(neededDirection, availableDirections));
+              break;
+            default:
+              move(currentPoint, navigateAround(currentPoint));
+              break;
+          }
+      }
     }
 
-    }
+    movingByShortestPath();
+    debugPrint('Found path is ${formatPointsPathToString(shortestPath)}');
 
-    // void fillStraightPath(GamePoint initialPoint) {
-    //
-    //
-    // };
-    //
-    // void fillDiagonalPath(GamePoint initialPoint) {
-    //
-    // };
 
-    return [start, /* j */ end];
+    return Solution(
+        id: task.id,
+        steps: shortestPath,
+        path: formatPointsPathToString(shortestPath),
+        matrix: matrix,
+        blockedPoints: blockedPoints);
   }
 }
-
