@@ -4,20 +4,16 @@ class Solution {
   final String id;
   final List<GamePoint> steps;
   final String path;
+  final List<List<GamePoint>> matrix;
+  final List<GamePoint> blockedPoints;
 
   Solution({
     required this.id,
     required this.steps,
     required this.path,
+    required this.matrix,
+    required this.blockedPoints
   });
-
-  factory Solution.fromJson(Map<String, dynamic> json) {
-    return Solution(
-      id: json['id'],
-      steps: List<GamePoint>.from(json['game_point']),
-      path: json['path'],
-    );
-  }
 
   Map<String, dynamic> toJson() =>
     {

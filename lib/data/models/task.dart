@@ -21,11 +21,4 @@ class Task {
       end: GamePoint.fromJson(json['end']),
     );
   }
-
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'field': field,
-    'start': start.toJson(),
-    'end': end.toJson(),
-  };
 }
