@@ -31,10 +31,10 @@ class ApiClient {
     }
   }
 
-  Future<Map<String, dynamic>> sendSolutionsList(Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> sendSolutionsList(List<Map<String, dynamic>> data) async {
     final response = await http.post(
       Uri.parse(baseUrl),
-      // headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'application/json'},
       body: json.encode(data),
     );
     debugPrint('Response: ${response.body}');
