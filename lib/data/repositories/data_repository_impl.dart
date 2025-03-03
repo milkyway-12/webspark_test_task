@@ -51,7 +51,7 @@ class DataRepositoryImpl implements DataRepository {
     solutionsList.map((solution) => solution.toJson()).toList();
 
     try {
-      final Map<String, dynamic>? jsonData =  await apiClient.sendSolutionsList({'solutions': data});
+      final Map<String, dynamic>? jsonData =  await apiClient.sendSolutionsList(data);
       debugPrint('JsonData for ResponseOnSolution ${jsonData.toString()}');
 
       if (jsonData == null || jsonData == '') {
