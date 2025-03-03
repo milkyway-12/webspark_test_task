@@ -27,7 +27,7 @@ class ResultListScreen extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                 ),),
               leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
                 onPressed: () => Navigator.of(context).pop(),
               ),
               backgroundColor: Colors.lightBlue,
