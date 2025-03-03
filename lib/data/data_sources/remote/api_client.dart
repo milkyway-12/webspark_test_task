@@ -7,10 +7,8 @@ import '../local/preferences_helper.dart';
 class ApiClient {
   final getUrlUseCase = GetServerUrlUseCase(PreferencesHelper.instance);
 
-  final baseUrl = 'https://flutter.webspark.dev/flutter/api';
-
   Future<Map<String, dynamic>?> getTaskList() async {
-    // final baseUrl = getUrlUseCase.execute() ?? 'https://flutter.webspark.dev/flutter/api';
+    final baseUrl = getUrlUseCase.execute() ?? 'https://flutter.webspark.dev/flutter/api';
 
     final response = await http.get(Uri.parse(baseUrl));
     debugPrint('Response: ${response.body}');
@@ -35,7 +33,7 @@ class ApiClient {
   }
 
   Future<Map<String, dynamic>> sendSolutionsList(List<Map<String, dynamic>> data) async {
-    // final baseUrl = getUrlUseCase.execute() ?? 'https://flutter.webspark.dev/flutter/api';
+    final baseUrl = getUrlUseCase.execute() ?? 'https://flutter.webspark.dev/flutter/api';
 
     final response = await http.post(
       Uri.parse(baseUrl),
